@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <style>
+       
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: grey;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"], 
+        input[type="submit"], 
+        button {
+            width: 100%;
+            padding: 12px 20px;
+            margin-top: 8px;
+            border: none;
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+
+        input[type="text"] {
+            border: 2px solid #ddd;
+            color: #666;
+        }
+
+        input[type="submit"], button {
+            background-color: #5C67F2;
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover, 
+        button:hover {
+            background-color: #4a54e1;
+        }
+
+        label {
+            text-align: left;
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        a {
+            color: #5C67F2;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        p {
+            color: #333;
+            font-size: 16px;
+        }
+
+        span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>URL SHORTENER</h1>
+        <form id="url-form" onsubmit="handleFormSubmit(event)">
+            <label for="long-url"><i><b>Enter a long URL:</b></i></label>
+            <input type="text" id="long-url" name="long-url">
+            <input type="submit" value="Shorten URL">
+        </form>
+        <p>Shortened URL: <a id="shortened-url" href="" target="_blank"></a></p>
+
+        <h2>DECODE SHORTNERED URL</h2>
+        <label for="short-url"><i><b>Enter the shortened URL:</b></i></label>
+        <input type="text" id="short-url" name="short-url">
+        <button onclick="getOriginalURL()">Get Original URL</button>
+        <p>Original URL: <span id="original-url"></span></p>
+    </div>
+
+    <script>
+        const alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        const base = alphabet.length;
+
+        class URLShortener {
+            constructor() {
+                this.urlMap = new Map();
+                this.shortUrlLength = 6; // customizable length for shortened URL
+            }
+            encodeURL(longURL) {
+                let shortURL = '';
+                do {
+                    shortURL = '';
+                    for (let i = 0; i < this.shortUrlLength; i++) {
+                        const randomIndex = Math.floor(Math.random() * base);
+                        shortURL += alphabet[randomIndex];
+                    }
+                } while (this.urlMap.has(shortURL)); // this line indicates to Ensure uniqueness
+                this.urlMap.set(shortURL, longURL);
+                return `https://short.url/${shortURL}`; //this line indicates that Assuming a domain for shortened url
+            }
+            decodeURL(shortURL) {
+                const shortCode = shortURL.substring(shortURL.lastIndexOf('/') + 1);
+                return this.urlMap.get(shortCode) || "Short URL not found";
+            }
+        }
+
+        const shortener = new URLShortener();
+
+        function handleFormSubmit(event) {
+            event.preventDefault(); // Preventing default form submission behavior
+            const longURLInput = document.getElementById('long-url');
+            const longURL = longURLInput.value;
+            const shortenedURL = shortener.encodeURL(longURL);
+            const link = document.getElementById('shortened-url');
+            link.href = shortenedURL;
+            link.innerText = shortenedURL;
+        }
+
+        function getOriginalURL() {
+            const shortURLInput = document.getElementById('short-url').value;
+            const originalURL = shortener.decodeURL(shortURLInput);
+            document.getElementById('original-url').innerText = originalURL;
+        }
+    </script>
+</body>
+</html>
